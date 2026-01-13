@@ -14,6 +14,10 @@ namespace core
         std::unordered_map<std::string, CommandHandler> handlers_;
         Store &store_;
 
+        void registerStringCommands();
+        void registerListCommands();
+        void registerSetCommands();
+
     public:
         explicit CommandDispatcher(Store &store);
         Response dispatch(const Command &command);

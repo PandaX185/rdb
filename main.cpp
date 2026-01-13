@@ -4,6 +4,16 @@
 
 using namespace core;
 
+std::string toupper(const std::string &str)
+{
+    std::string result = str;
+    for (char &c : result)
+    {
+        c = std::toupper(c);
+    }
+    return result;
+}
+
 int main()
 {
     Store store;
@@ -15,6 +25,7 @@ int main()
         std::istringstream iss(line);
         Command cmd;
         iss >> cmd.name;
+        cmd.name = toupper(cmd.name);
         std::string arg;
         while (iss >> arg)
         {
@@ -35,6 +46,16 @@ int main()
             break;
         case ResponseStatus::NIL:
             std::cout << "(nil)" << std::endl;
+            break;
+        case ResponseStatus::ARRAY:
+            std::cout << "[";
+            for (size_t i = 0; i < response.array_data.size(); ++i)
+            {
+                if (i > 0)
+                    std::cout << ",";
+                std::cout << response.array_data[i];
+            }
+            std::cout << "]" << std::endl;
             break;
         }
     }

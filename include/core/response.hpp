@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 namespace core
 {
     enum class ResponseStatus
@@ -6,7 +7,8 @@ namespace core
         OK,
         ERROR,
         STRING,
-        NIL
+        NIL,
+        ARRAY
     };
 
     class Response
@@ -14,9 +16,10 @@ namespace core
     public:
         ResponseStatus status;
         std::string message;
+        std::vector<std::string> array_data;
 
-        Response(ResponseStatus status, const std::string &message = "")
-            : status(status), message(message) {}
+        Response(ResponseStatus status, const std::string &message = "", const std::vector<std::string> &array = {})
+            : status(status), message(message), array_data(array) {}
 
         static Response Ok()
         {
@@ -31,6 +34,11 @@ namespace core
         static Response String(const std::string &msg)
         {
             return Response(ResponseStatus::STRING, msg);
+        }
+
+        static Response Array(const std::vector<std::string> &arr)
+        {
+            return Response(ResponseStatus::ARRAY, "", arr);
         }
     };
 }
