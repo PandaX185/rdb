@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/panda/Personal-Projects/rdb/build",
+  "command": "/usr/bin/clang++   -g -o CMakeFiles/rdb.dir/main.cpp.o -c /home/panda/Personal-Projects/rdb/main.cpp",
+  "file": "/home/panda/Personal-Projects/rdb/main.cpp",
+  "output": "CMakeFiles/rdb.dir/main.cpp.o"
+}
+]
