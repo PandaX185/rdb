@@ -35,32 +35,7 @@ int main(int argc, char *argv[])
         }
 
         Response response = dispatcher.dispatch(command);
-        switch (response.status)
-        {
-        case ResponseStatus::OK:
-            return "+OK\r\n";
-        case ResponseStatus::ERROR:
-            return "-ERROR " + response.message + "\r\n";
-        case ResponseStatus::STRING:
-            return "+" + response.message + "\r\n";
-        case ResponseStatus::NIL:
-            return "(nil)\r\n";
-        case ResponseStatus::ARRAY:
-        {
-            std::ostringstream oss;
-            oss << "[";
-            for (const auto &item : response.array_data)
-            {
-                oss << item << ", ";
-            }
-            oss.seekp(-2, std::ios_base::end);
-            oss << "]\n";
-            return oss.str();
-            }
-            break;
-        default:
-            break;
-        } });
+        return response.to_resp(); });
 
     server.start();
     return 0;

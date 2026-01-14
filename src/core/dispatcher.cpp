@@ -104,7 +104,7 @@ namespace core
             {
                 return Response::String(*result);
             }
-            return Response(ResponseStatus::NIL, "");
+            return Response::Nil();
         };
 
         handlers_["RPOP"] = [this](const Command &command) -> Response
@@ -119,7 +119,7 @@ namespace core
             {
                 return Response::String(*result);
             }
-            return Response(ResponseStatus::NIL, "");
+            return Response::Nil();
         };
 
         handlers_["LLEN"] = [this](const Command &command) -> Response
@@ -132,9 +132,9 @@ namespace core
             auto result = store_.llen(key);
             if (result)
             {
-                return Response::String(std::to_string(*result));
+                return Response::Integer(*result);
             }
-            return Response::Error("Key is not a list");
+            return Response::Integer(0);
         };
 
         handlers_["LRANGE"] = [this](const Command &command) -> Response
