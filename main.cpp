@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "core/dispatcher.hpp"
+#include "net/tcp_server.hpp"
 
 using namespace core;
 
@@ -18,45 +19,48 @@ int main()
 {
     Store store;
     CommandDispatcher dispatcher(store);
+    net::TCPServer server(6666, [&dispatcher](const std::string &request) -> std::string
+                          {
+        std::istringstream iss(request);
+        std::string command_name;
+        iss >> command_name;
 
-    std::string line;
-    while (std::getline(std::cin, line))
-    {
-        std::istringstream iss(line);
-        Command cmd;
-        iss >> cmd.name;
-        cmd.name = toupper(cmd.name);
+        Command command;
+        command.name = toupper(command_name);
         std::string arg;
         while (iss >> arg)
         {
-            cmd.args.push_back(arg);
+            command.args.push_back(arg);
         }
 
-        Response response = dispatcher.dispatch(cmd);
+        Response response = dispatcher.dispatch(command);
         switch (response.status)
         {
         case ResponseStatus::OK:
-            std::cout << "OK" << std::endl;
-            break;
+            return "+OK\r\n";
         case ResponseStatus::ERROR:
-            std::cout << "ERROR: " << response.message << std::endl;
-            break;
+            return "-ERROR " + response.message + "\r\n";
         case ResponseStatus::STRING:
-            std::cout << response.message << std::endl;
-            break;
+            return "+" + response.message + "\r\n";
         case ResponseStatus::NIL:
-            std::cout << "(nil)" << std::endl;
-            break;
+            return "$-1\r\n";
         case ResponseStatus::ARRAY:
-            std::cout << "[";
-            for (size_t i = 0; i < response.array_data.size(); ++i)
+        {
+            std::ostringstream oss;
+            oss << "[";
+            for (const auto &item : response.array_data)
             {
-                if (i > 0)
-                    std::cout << ",";
-                std::cout << response.array_data[i];
+                oss << item << ", ";
             }
-            std::cout << "]" << std::endl;
+            oss.seekp(-2, std::ios_base::end);
+            oss << "]\n";
+            return oss.str();
+            }
             break;
-        }
-    }
+        default:
+            break;
+        } });
+
+    server.start();
+    return 0;
 }
