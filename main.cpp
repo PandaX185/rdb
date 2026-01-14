@@ -2,7 +2,6 @@
 #include <sstream>
 #include "core/dispatcher.hpp"
 #include "net/tcp_server.hpp"
-#include "core/thread_pool.hpp"
 
 using namespace core;
 
@@ -16,13 +15,12 @@ std::string toupper(const std::string &str)
     return result;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     Store store;
     CommandDispatcher dispatcher(store);
-    size_t num_threads = std::max(1u, std::thread::hardware_concurrency());
-    pool::ThreadPool thread_pool(num_threads);
-    net::TCPServer server(thread_pool, 6666, [&dispatcher](const std::string &request) -> std::string
+
+    net::TCPServer server(6666, [&dispatcher](const std::string &request) -> std::string
                           {
         std::istringstream iss(request);
         std::string command_name;

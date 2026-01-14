@@ -1,7 +1,6 @@
 #pragma once
 #include <functional>
 #include <string>
-#include "core/thread_pool.hpp"
 
 namespace net
 {
@@ -12,10 +11,9 @@ namespace net
     private:
         int port;
         RequestHandler handler;
-        pool::ThreadPool &thread_pool;
 
     public:
-        TCPServer(pool::ThreadPool &thread_pool, int port, RequestHandler handler) : port(port), handler(handler), thread_pool(thread_pool) {}
+        TCPServer(int port, RequestHandler handler) : port(port), handler(handler) {}
         void start();
     };
 }
