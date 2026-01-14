@@ -71,7 +71,8 @@ namespace net
             int client_fd = accept(server_fd, nullptr, nullptr);
             if (client_fd >= 0)
             {
-                std::thread(handle_client, client_fd, handler).detach();
+                thread_pool.enqueue([client_fd, this]()
+                                    { handle_client(client_fd, this->handler); });
             }
         }
     }
