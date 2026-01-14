@@ -8,23 +8,45 @@
 
 namespace net
 {
+    void write_all(int fd, const std::string &data)
+    {
+        size_t total = 0;
+        while (total < data.size())
+        {
+            ssize_t n = write(fd, data.data() + total, data.size() - total);
+            if (n <= 0)
+                break;
+            total += n;
+        }
+    }
+
     void handle_client(int client_fd, RequestHandler handler)
     {
         char buffer[4096];
-
+        std::string full_buffer;
         while (true)
         {
-            ssize_t n = read(client_fd, buffer, sizeof(buffer) - 1);
+            ssize_t n = read(client_fd, buffer, sizeof(buffer));
             if (n <= 0)
-            {
                 break;
+
+            full_buffer.append(buffer, n);
+
+            while (true)
+            {
+                auto pos = full_buffer.find("\n");
+                if (pos == std::string::npos)
+                    break;
+
+                std::string line = full_buffer.substr(0, pos);
+                full_buffer.erase(0, pos + 1);
+
+                if (!line.empty() && line.back() == '\r')
+                    line.pop_back();
+
+                std::string response = handler(line);
+                write_all(client_fd, response);
             }
-            buffer[n] = '\0';
-            std::string request(buffer);
-
-            std::string response = handler(request);
-
-            write(client_fd, response.c_str(), response.size());
         }
 
         close(client_fd);

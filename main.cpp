@@ -43,7 +43,7 @@ int main()
         case ResponseStatus::STRING:
             return "+" + response.message + "\r\n";
         case ResponseStatus::NIL:
-            return "$-1\r\n";
+            return "(nil)\r\n";
         case ResponseStatus::ARRAY:
         {
             std::ostringstream oss;
