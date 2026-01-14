@@ -1,10 +1,6 @@
 #include "core/store.hpp"
 #include <unordered_map>
-#include <vector>
 #include "core/value.hpp"
-#include <shared_mutex>
-#include <algorithm>
-#include <mutex>
 
 namespace core
 {
