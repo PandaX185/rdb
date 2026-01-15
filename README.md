@@ -21,10 +21,30 @@ make
 
 ## Usage
 
-Run the server:
+Run the server locally:
 
 ```bash
 ./rdb
+```
+
+### Docker
+
+Build the Docker image:
+
+```bash
+docker build -t rdb .
+```
+
+Run the server in a container:
+
+```bash
+docker run -p 6666:6666 rdb
+```
+
+To run on a custom port:
+
+```bash
+docker run -p 5555:6666 -e SERVER_PORT=6666 rdb
 ```
 
 Connect with a Redis client (e.g., redis-cli) or send RESP-formatted commands via telnet/netcat:
