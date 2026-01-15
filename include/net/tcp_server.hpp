@@ -1,10 +1,12 @@
 #pragma once
 #include <functional>
 #include <string>
+#include "core/command.hpp"
+#include "core/response.hpp"
 
 namespace net
 {
-    using RequestHandler = std::function<std::string(const std::string &)>;
+    using RequestHandler = std::function<core::Response(const core::Command &)>;
 
     class TCPServer
     {

@@ -27,13 +27,11 @@ Run the server:
 ./rdb
 ```
 
-Connect with a Redis client or telnet:
+Connect with a Redis client (e.g., redis-cli) or send RESP-formatted commands via telnet/netcat:
 
-```bash
-telnet localhost 6666
-SET key value
-GET key
-```
+Example RESP command for SET: `*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n`
+
+Responses are RESP-compliant.
 
 ## Architecture
 

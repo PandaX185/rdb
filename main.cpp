@@ -20,22 +20,8 @@ int main(int argc, char *argv[])
     Store store;
     CommandDispatcher dispatcher(store);
 
-    net::TCPServer server(6666, [&dispatcher](const std::string &request) -> std::string
-                          {
-        std::istringstream iss(request);
-        std::string command_name;
-        iss >> command_name;
-
-        Command command;
-        command.name = toupper(command_name);
-        std::string arg;
-        while (iss >> arg)
-        {
-            command.args.push_back(arg);
-        }
-
-        Response response = dispatcher.dispatch(command);
-        return response.to_resp(); });
+    net::TCPServer server(6666, [&dispatcher](const Command &command) -> Response
+                          { return dispatcher.dispatch(command); });
 
     server.start();
     return 0;

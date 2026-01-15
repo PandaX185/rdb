@@ -8,9 +8,45 @@
 #include <fcntl.h>
 #include <map>
 #include <string>
+#include <optional>
+#include <algorithm>
+#include <cctype>
+#include "core/command.hpp"
 
 namespace net
 {
+    using core::Command;
+    using core::Response;
+    std::optional<std::vector<std::string>> parse_resp_command(std::string &buffer)
+    {
+        if (buffer.empty() || buffer[0] != '*')
+            return std::nullopt;
+        size_t pos = 1;
+        size_t crlf = buffer.find("\r\n", pos);
+        if (crlf == std::string::npos)
+            return std::nullopt;
+        int count = std::stoi(buffer.substr(pos, crlf - pos));
+        pos = crlf + 2;
+        std::vector<std::string> args;
+        for (int i = 0; i < count; ++i)
+        {
+            if (pos >= buffer.size() || buffer[pos] != '$')
+                return std::nullopt;
+            pos++;
+            crlf = buffer.find("\r\n", pos);
+            if (crlf == std::string::npos)
+                return std::nullopt;
+            int len = std::stoi(buffer.substr(pos, crlf - pos));
+            pos = crlf + 2;
+            if (pos + len + 2 > buffer.size())
+                return std::nullopt;
+            std::string arg = buffer.substr(pos, len);
+            args.push_back(arg);
+            pos += len + 2;
+        }
+        buffer.erase(0, pos);
+        return args;
+    }
     struct ClientState
     {
         std::string read_buffer;
@@ -76,15 +112,17 @@ namespace net
                         if (nread > 0)
                         {
                             state.read_buffer.append(buf, nread);
-                            size_t pos;
-                            while ((pos = state.read_buffer.find('\n')) != std::string::npos)
+                            while (auto cmd_args = parse_resp_command(state.read_buffer))
                             {
-                                std::string line = state.read_buffer.substr(0, pos);
-                                state.read_buffer.erase(0, pos + 1);
-                                if (!line.empty() && line.back() == '\r')
-                                    line.pop_back();
-                                std::string response = handler(line);
-                                state.write_buffer += response;
+                                if (cmd_args->empty())
+                                    continue;
+                                Command command;
+                                command.name = std::move(cmd_args->front());
+                                cmd_args->erase(cmd_args->begin());
+                                command.args = std::move(*cmd_args);
+                                std::transform(command.name.begin(), command.name.end(), command.name.begin(), ::toupper);
+                                Response response = handler(command);
+                                state.write_buffer += response.to_resp();
                             }
                             if (!state.write_buffer.empty())
                             {
