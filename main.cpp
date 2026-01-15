@@ -20,7 +20,20 @@ int main(int argc, char *argv[])
     Store store;
     CommandDispatcher dispatcher(store);
 
-    net::TCPServer server(6666, [&dispatcher](const Command &command) -> Response
+    size_t port = 6666;
+    if (argc > 1)
+    {
+        try
+        {
+            port = std::stoul(argv[1]);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error parsing port number\nUsing default port" << std::endl;
+        }
+    }
+
+    net::TCPServer server(port, [&dispatcher](const Command &command) -> Response
                           { return dispatcher.dispatch(command); });
 
     server.start();
